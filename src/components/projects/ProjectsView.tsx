@@ -5,11 +5,13 @@ import { useState } from "react";
 import type { AppStore } from "@/store/useAppStore";
 import { toDateKey } from "@/lib/date";
 import { projectStatusLabels } from "@/lib/labels";
+import { getProjectProgress } from "@/lib/selectors";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input, Textarea } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export function ProjectsView({ store }: { store: AppStore }) {
   const data = store.data!;
@@ -20,6 +22,7 @@ export function ProjectsView({ store }: { store: AppStore }) {
   const [taskTitle, setTaskTitle] = useState("");
   const [memoTitle, setMemoTitle] = useState("");
   const [memoContent, setMemoContent] = useState("");
+  const selectedProgress = selected ? getProjectProgress(data, selected.id) : null;
 
   return (
     <div className="space-y-6">
@@ -67,6 +70,9 @@ export function ProjectsView({ store }: { store: AppStore }) {
                 <span className="rounded border border-line px-2 py-1 text-xs text-muted">{projectStatusLabels[project.status]}</span>
               </div>
               <p className="mt-2 line-clamp-2 text-sm text-muted">{project.description}</p>
+              <div className="mt-3">
+                <ProgressBar value={getProjectProgress(data, project.id).completionRate} />
+              </div>
             </button>
           ))}
         </div>
@@ -77,6 +83,11 @@ export function ProjectsView({ store }: { store: AppStore }) {
               <div>
                 <h2 className="text-2xl font-semibold text-ink">{selected.title}</h2>
                 <p className="mt-2 text-sm text-muted">{selected.description}</p>
+                {selectedProgress ? (
+                  <p className="mt-3 text-sm text-muted">
+                    진행률 {selectedProgress.completionRate}% · 완료 {selectedProgress.done}/{selectedProgress.total}
+                  </p>
+                ) : null}
               </div>
               <Button variant="danger" onClick={() => store.deleteProject(selected.id)}>
                 <Trash2 size={15} /> 삭제

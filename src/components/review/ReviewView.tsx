@@ -4,11 +4,13 @@ import { Save } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { AppStore } from "@/store/useAppStore";
 import { toDateKey } from "@/lib/date";
+import { getSevenDaySummary } from "@/lib/selectors";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Textarea } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export function ReviewView({ store }: { store: AppStore }) {
   const data = store.data!;
@@ -17,21 +19,16 @@ export function ReviewView({ store }: { store: AppStore }) {
   const completed = tasks.filter((task) => task.status === "done");
   const missed = tasks.filter((task) => task.status !== "done");
   const existing = data.reviews.find((review) => review.date === today);
-  const [completedSummary, setCompletedSummary] = useState(existing?.completedSummary ?? completed.map((task) => task.title).join("\n"));
-  const [missedSummary, setMissedSummary] = useState(existing?.missedSummary ?? missed.map((task) => task.title).join("\n"));
+  const [completedSummary, setCompletedSummary] = useState(
+    existing?.completedSummary ?? completed.map((task) => task.title).join("\n")
+  );
+  const [missedSummary, setMissedSummary] = useState(
+    existing?.missedSummary ?? missed.map((task) => task.title).join("\n")
+  );
   const [reflection, setReflection] = useState(existing?.reflection ?? "");
   const [refineNext, setRefineNext] = useState(existing?.refineNext ?? "");
 
-  const weekly = useMemo(() => {
-    const doneCount = data.tasks.filter((task) => task.status === "done").length;
-    const moodAverage = data.moodLogs.length
-      ? (data.moodLogs.reduce((sum, item) => sum + item.moodScore, 0) / data.moodLogs.length).toFixed(1)
-      : "0";
-    const energyAverage = data.moodLogs.length
-      ? (data.moodLogs.reduce((sum, item) => sum + item.energyScore, 0) / data.moodLogs.length).toFixed(1)
-      : "0";
-    return { doneCount, moodAverage, energyAverage };
-  }, [data.moodLogs, data.tasks]);
+  const weekly = useMemo(() => getSevenDaySummary(data), [data]);
 
   return (
     <div className="space-y-6">
@@ -53,8 +50,15 @@ export function ReviewView({ store }: { store: AppStore }) {
           <p className="mt-2 text-sm text-muted">내일 재배치할 항목</p>
         </Card>
         <Card>
-          <SectionTitle title="주간 요약" />
-          <p className="text-sm text-muted">완료 {weekly.doneCount}개 · 기분 {weekly.moodAverage}/5 · 에너지 {weekly.energyAverage}/5</p>
+          <SectionTitle title="7일 운영 요약" />
+          <div className="mb-3 flex items-center justify-between text-sm text-muted">
+            <span>완료율</span>
+            <span>{weekly.completionRate}%</span>
+          </div>
+          <ProgressBar value={weekly.completionRate} />
+          <p className="mt-3 text-sm text-muted">
+            완료 {weekly.completedTasks.length}개 · 기분 {weekly.moodAverage}/5 · 에너지 {weekly.energyAverage}/5
+          </p>
         </Card>
       </div>
 
@@ -90,12 +94,16 @@ export function ReviewView({ store }: { store: AppStore }) {
       <Card>
         <SectionTitle title="저장된 리뷰" />
         <div className="space-y-3">
-          {data.reviews.length ? data.reviews.map((review) => (
-            <div key={review.id} className="rounded-md border border-line p-4">
-              <div className="font-semibold text-ink">{review.date}</div>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-muted">{review.reflection || "회고 메모 없음"}</p>
-            </div>
-          )) : <EmptyState title="저장된 리뷰가 없습니다" description="오늘 회고를 저장하면 이곳에 쌓입니다." />}
+          {data.reviews.length ? (
+            data.reviews.map((review) => (
+              <div key={review.id} className="rounded-md border border-line p-4">
+                <div className="font-semibold text-ink">{review.date}</div>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-muted">{review.reflection || "회고 메모 없음"}</p>
+              </div>
+            ))
+          ) : (
+            <EmptyState title="저장된 리뷰가 없습니다" description="오늘 회고를 저장하면 이곳에 쌓입니다." />
+          )}
         </div>
       </Card>
     </div>

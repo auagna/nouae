@@ -1,24 +1,34 @@
 "use client";
 
-import { Archive, CalendarPlus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Archive, CalendarPlus, Filter, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import type { AppStore } from "@/store/useAppStore";
+import type { InboxStatus } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
 
+type InboxFilter = "all" | InboxStatus;
+
 export function InboxView({ store }: { store: AppStore }) {
   const data = store.data!;
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
+  const [filter, setFilter] = useState<InboxFilter>("raw");
+
+  const filteredItems = useMemo(() => {
+    if (filter === "all") return data.inboxItems;
+    return data.inboxItems.filter((item) => item.status === filter);
+  }, [data.inboxItems, filter]);
 
   function submit() {
     if (!title.trim()) return;
     store.addInboxItem(title.trim(), note.trim());
     setTitle("");
     setNote("");
+    setFilter("raw");
   }
 
   return (
@@ -28,6 +38,7 @@ export function InboxView({ store }: { store: AppStore }) {
         title="인박스"
         description="아직 분류하지 않은 생각, 작업, 링크, 아이디어를 빠르게 붙잡는 입구입니다."
       />
+
       <Card>
         <SectionTitle title="빠른 캡처" caption="정리 전 생각, 할 일, 링크, 아이디어를 모읍니다." />
         <div className="grid gap-3 lg:grid-cols-[0.7fr_1fr_auto]">
@@ -37,43 +48,59 @@ export function InboxView({ store }: { store: AppStore }) {
         </div>
       </Card>
 
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 text-sm text-muted">
+          <Filter size={15} />
+          보기
+        </div>
+        {(["raw", "processed", "all"] as InboxFilter[]).map((value) => (
+          <Button key={value} variant={filter === value ? "primary" : "secondary"} onClick={() => setFilter(value)}>
+            {value === "raw" ? "미처리" : value === "processed" ? "처리됨" : "전체"}
+          </Button>
+        ))}
+      </div>
+
       <div className="grid gap-4">
-        {data.inboxItems.length ? data.inboxItems.map((item) => (
-          <Card key={item.id} className={item.status === "processed" ? "opacity-70" : ""}>
-            <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
-              <button className="text-left" onClick={() => store.setInspectorItem({ kind: "inbox", id: item.id })}>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-semibold text-ink">{item.title}</h2>
-                  <span className="rounded border border-line px-2 py-1 text-xs text-muted">
-                    {item.status === "raw" ? "raw" : "processed"}
-                  </span>
+        {filteredItems.length ? (
+          filteredItems.map((item) => (
+            <Card key={item.id} className={item.status === "processed" ? "opacity-70" : ""}>
+              <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+                <button className="text-left" onClick={() => store.setInspectorItem({ kind: "inbox", id: item.id })}>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-ink">{item.title}</h2>
+                    <span className="rounded border border-line px-2 py-1 text-xs text-muted">
+                      {item.status === "raw" ? "raw" : "processed"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted">{item.note || "메모 없음"}</p>
+                </button>
+                <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  <Button onClick={() => store.updateInboxItem(item.id, { status: "processed" })}>
+                    <Archive size={15} /> 처리
+                  </Button>
+                  <Button onClick={() => store.moveInboxToToday(item)}>
+                    <CalendarPlus size={15} /> 오늘
+                  </Button>
+                  <select
+                    className="h-9 rounded-md border border-line bg-white px-2 text-sm"
+                    defaultValue=""
+                    onChange={(event) => event.target.value && store.moveInboxToProject(item, event.target.value)}
+                  >
+                    <option value="">프로젝트로</option>
+                    {data.projects.map((project) => (
+                      <option key={project.id} value={project.id}>{project.title}</option>
+                    ))}
+                  </select>
+                  <Button variant="danger" onClick={() => store.deleteInboxItem(item.id)}>
+                    <Trash2 size={15} />
+                  </Button>
                 </div>
-                <p className="mt-2 text-sm text-muted">{item.note || "메모 없음"}</p>
-              </button>
-              <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                <Button onClick={() => store.updateInboxItem(item.id, { status: "processed" })}>
-                  <Archive size={15} /> 처리
-                </Button>
-                <Button onClick={() => store.moveInboxToToday(item)}>
-                  <CalendarPlus size={15} /> 오늘
-                </Button>
-                <select
-                  className="h-9 rounded-md border border-line bg-white px-2 text-sm"
-                  defaultValue=""
-                  onChange={(event) => event.target.value && store.moveInboxToProject(item, event.target.value)}
-                >
-                  <option value="">프로젝트로</option>
-                  {data.projects.map((project) => (
-                    <option key={project.id} value={project.id}>{project.title}</option>
-                  ))}
-                </select>
-                <Button variant="danger" onClick={() => store.deleteInboxItem(item.id)}>
-                  <Trash2 size={15} />
-                </Button>
               </div>
-            </div>
-          </Card>
-        )) : <EmptyState title="인박스가 비어 있습니다" description="새 생각이 생기면 위 입력창에 먼저 담아두세요." />}
+            </Card>
+          ))
+        ) : (
+          <EmptyState title="표시할 인박스 항목이 없습니다" description="새 생각이 생기면 위 입력창에 먼저 담아두세요." />
+        )}
       </div>
     </div>
   );

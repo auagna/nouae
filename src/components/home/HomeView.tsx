@@ -4,10 +4,12 @@ import { Activity, Check, Clock, NotebookPen, Signal } from "lucide-react";
 import type { AppStore } from "@/store/useAppStore";
 import { toDateKey } from "@/lib/date";
 import { loopStages } from "@/lib/labels";
+import { getSevenDaySummary, getTodayOverview } from "@/lib/selectors";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { StatCard } from "@/components/ui/StatCard";
 
 export function HomeView({ store }: { store: AppStore }) {
@@ -16,6 +18,8 @@ export function HomeView({ store }: { store: AppStore }) {
   const todayTasks = data.tasks.filter((task) => task.date === today);
   const blocks = data.timeBlocks.filter((block) => block.date === today).sort((a, b) => a.start.localeCompare(b.start));
   const mood = data.moodLogs.find((log) => log.date === today);
+  const overview = getTodayOverview(data, today);
+  const sevenDay = getSevenDaySummary(data);
 
   return (
     <div className="space-y-6">
@@ -57,6 +61,30 @@ export function HomeView({ store }: { store: AppStore }) {
           </div>
         </Card>
       </div>
+
+      <Card>
+        <SectionTitle title="운영 상태" caption="오늘 실행과 최근 7일의 흐름을 한눈에 봅니다." />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-4">
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <span className="font-medium text-ink">오늘 완료율</span>
+              <span className="text-muted">{overview.completionRate}%</span>
+            </div>
+            <ProgressBar value={overview.completionRate} />
+          </div>
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-4">
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <span className="font-medium text-ink">7일 완료율</span>
+              <span className="text-muted">{sevenDay.completionRate}%</span>
+            </div>
+            <ProgressBar value={sevenDay.completionRate} />
+          </div>
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-4 text-sm text-muted">
+            <div className="font-medium text-ink">정리 대기</div>
+            <p className="mt-2">인박스 {overview.rawInboxItems.length}개 · 활성 프로젝트 {overview.activeProjects.length}개</p>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid gap-5 lg:grid-cols-3">
         <Card className="lg:col-span-2">

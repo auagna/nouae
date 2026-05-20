@@ -4,17 +4,20 @@ import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { AppStore } from "@/store/useAppStore";
 import { formatKoreanDate, toDateKey } from "@/lib/date";
+import { getTodayOverview } from "@/lib/selectors";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input, Textarea } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export function TodayView({ store }: { store: AppStore }) {
   const data = store.data!;
   const today = toDateKey();
   const tasks = data.tasks.filter((task) => task.date === today);
   const blocks = data.timeBlocks.filter((block) => block.date === today).sort((a, b) => a.start.localeCompare(b.start));
+  const overview = getTodayOverview(data, today);
   const [taskTitle, setTaskTitle] = useState("");
   const [blockTitle, setBlockTitle] = useState("");
   const [blockStart, setBlockStart] = useState("09:00");
@@ -33,6 +36,23 @@ export function TodayView({ store }: { store: AppStore }) {
       <Card>
         <SectionTitle title="오늘 포커스 문장" />
         <Input value={data.todayFocus} onChange={(event) => store.setTodayFocus(event.target.value)} />
+      </Card>
+
+      <Card>
+        <SectionTitle title="오늘 운영 리듬" caption="작업 완료율과 시간 배치 상태를 함께 확인합니다." />
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-4 md:col-span-2">
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <span className="font-medium text-ink">체크리스트 완료율</span>
+              <span className="text-muted">{overview.completionRate}%</span>
+            </div>
+            <ProgressBar value={overview.completionRate} />
+          </div>
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-4 text-sm text-muted">
+            <div className="font-medium text-ink">시간 배치</div>
+            <p className="mt-2">오늘 타임블록 {overview.blocks.length}개</p>
+          </div>
+        </div>
       </Card>
 
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">

@@ -6,6 +6,7 @@ import type { AppStore } from "@/store/useAppStore";
 import type { TimeBlockType } from "@/types";
 import { addDays, addMonths, formatMonthTitle, getMonthGrid, getWeekDays, toDateKey } from "@/lib/date";
 import { timeBlockTypeLabels } from "@/lib/labels";
+import { getTasksForDate, getTimeBlocksForDate } from "@/lib/selectors";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -15,11 +16,14 @@ import { PageHeader } from "@/components/ui/PageHeader";
 const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
 export function CalendarView({ store }: { store: AppStore }) {
+  const data = store.data!;
   const [title, setTitle] = useState("");
   const [start, setStart] = useState("14:00");
   const [end, setEnd] = useState("15:00");
   const [type, setType] = useState<TimeBlockType>("timeBlock");
   const selectedKey = toDateKey(store.calendarDate);
+  const selectedBlocks = getTimeBlocksForDate(data, selectedKey);
+  const selectedTasks = getTasksForDate(data, selectedKey);
 
   const movePeriod = (direction: -1 | 1) => {
     if (store.calendarMode === "month") store.setCalendarDate(addMonths(store.calendarDate, direction));
@@ -48,6 +52,20 @@ export function CalendarView({ store }: { store: AppStore }) {
       />
 
       <Card>
+        <div className="mb-5 grid gap-3 border-b border-line pb-4 md:grid-cols-3">
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-3">
+            <div className="text-xs text-muted">선택 날짜</div>
+            <div className="mt-1 font-semibold text-ink">{selectedKey}</div>
+          </div>
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-3">
+            <div className="text-xs text-muted">타임블록</div>
+            <div className="mt-1 font-semibold text-ink">{selectedBlocks.length}개</div>
+          </div>
+          <div className="rounded-md border border-line bg-[#fdfcf8] p-3">
+            <div className="text-xs text-muted">작업</div>
+            <div className="mt-1 font-semibold text-ink">{selectedTasks.length}개</div>
+          </div>
+        </div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-ink">{formatMonthTitle(store.calendarDate)}</h2>
           <div className="grid w-full gap-2 md:w-auto md:grid-cols-[180px_90px_90px_120px_auto]">
