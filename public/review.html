@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>nou ae 리뷰 리포트</title>
+    <style>
+      :root {
+        --paper: #f4f2ec;
+        --panel: #ffffff;
+        --ink: #1f2428;
+        --muted: #6f756f;
+        --line: #e4e1d8;
+        --sage: #75836f;
+        --clay: #b66d55;
+        --steel: #617083;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px 24px 72px;
+      }
+
+      header {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 1.3fr 0.7fr;
+        align-items: end;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 28px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(34px, 5vw, 64px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 22px;
+        margin-bottom: 14px;
+      }
+
+      h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+      }
+
+      .eyebrow {
+        color: var(--sage);
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: 17px;
+        max-width: 720px;
+      }
+
+      .meta {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .meta dl {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+      }
+
+      .meta div {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 8px;
+      }
+
+      .meta div:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      dt {
+        color: var(--muted);
+      }
+
+      dd {
+        margin: 0;
+        font-weight: 700;
+      }
+
+      section {
+        margin-top: 28px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 12px 40px rgba(31, 36, 40, 0.05);
+      }
+
+      .stat {
+        font-size: 32px;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .pill {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fdfcf8;
+        color: var(--muted);
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+      }
+
+      .release {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 16px;
+        border-left: 3px solid var(--sage);
+        background: var(--panel);
+        border-radius: 0 8px 8px 0;
+        padding: 16px 18px;
+      }
+
+      .release strong {
+        color: var(--sage);
+      }
+
+      .priority {
+        border-left: 3px solid var(--clay);
+      }
+
+      .score {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-top: 1px solid var(--line);
+        margin-top: 14px;
+        padding-top: 14px;
+      }
+
+      .bar {
+        height: 8px;
+        width: 140px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e8e5dc;
+      }
+
+      .bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--sage);
+      }
+
+      @media (max-width: 860px) {
+        header,
+        .grid.three,
+        .grid.two,
+        .release {
+          grid-template-columns: 1fr;
+        }
+
+        main {
+          padding: 28px 16px 56px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">Product Review</p>
+          <h1>nou ae 리뷰 리포트</h1>
+          <p class="lead">
+            개인 폐쇄 루프 운영 시스템으로서 현재 구현 상태를 점검하고, 다음 단계에서 제품 완성도를 어디로 끌어올릴지 정리한 리뷰 페이지입니다.
+          </p>
+        </div>
+        <aside class="meta" aria-label="프로젝트 메타 정보">
+          <dl>
+            <div><dt>제품명</dt><dd>nou ae</dd></div>
+            <div><dt>현재 버전</dt><dd>v2.1.0</dd></div>
+            <div><dt>저장 방식</dt><dd>localStorage</dd></div>
+            <div><dt>범위</dt><dd>개인 MVP</dd></div>
+          </dl>
+        </aside>
+      </header>
+
+      <section>
+        <div class="grid three">
+          <article class="card">
+            <p class="stat">7</p>
+            <h3>주요 화면</h3>
+            <p class="muted">Home, Inbox, Today, Calendar, Projects, Review, Settings가 모두 기능형 MVP로 구현되었습니다.</p>
+          </article>
+          <article class="card">
+            <p class="stat">3</p>
+            <h3>릴리스 태그</h3>
+            <p class="muted">v1.0.0, v2.0.0, v2.1.0 기준점이 GitHub에 저장되어 있습니다.</p>
+          </article>
+          <article class="card">
+            <p class="stat">6</p>
+            <h3>핵심 루프</h3>
+            <p class="muted">Capture, Plan, Execute, Log, Review, Refine 흐름을 제품 구조의 중심으로 잡았습니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>제품 판단</h2>
+        <p class="muted">
+          nou ae는 현재 “개인 일정 + 프로젝트 대시보드 + 일일 운영 시스템”의 뼈대를 갖췄습니다. 다음 성장은 기능 개수보다 화면 간 연결성을 높이는 쪽이 중요합니다.
+          특히 Today, Calendar, Review가 하나의 실행 루프로 더 자연스럽게 이어져야 합니다.
+        </p>
+        <div class="score">
+          <span>현재 MVP 완성도</span>
+          <div class="bar" aria-label="현재 MVP 완성도 68퍼센트"><span style="width: 68%"></span></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>구현 리뷰</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>잘 잡힌 부분</h3>
+            <ul>
+              <li>팀/협업 기능 없이 개인 운영 시스템이라는 방향을 유지했습니다.</li>
+              <li>localStorage 저장 계층을 별도로 두어 나중에 백엔드로 교체하기 쉽습니다.</li>
+              <li>Today 실행 플로우가 v2.1에서 실제 사용 가능한 수준으로 강해졌습니다.</li>
+              <li>selector 계층이 생겨 화면별 통계 계산 중복이 줄었습니다.</li>
+            </ul>
+          </article>
+          <article class="card priority">
+            <h3>보강이 필요한 부분</h3>
+            <ul>
+              <li>Calendar의 Day/Week 화면은 아직 시간축 경험이 약합니다.</li>
+              <li>Project 상세는 목표, 로그, 다음 행동이 더 분리되어야 합니다.</li>
+              <li>Review는 아직 다음 계획을 자동으로 생성하는 힘이 부족합니다.</li>
+              <li>남아 있는 화면의 한글 카피와 빈 상태를 더 정리해야 합니다.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>버전 히스토리</h2>
+        <div class="timeline">
+          <article class="release">
+            <strong>v1.0.0</strong>
+            <p class="muted">첫 MVP. 앱 shell, 주요 화면, localStorage, seed data, JSON export/import를 구축했습니다.</p>
+          </article>
+          <article class="release">
+            <strong>v2.0.0</strong>
+            <p class="muted">운영 지표, selector 계층, Inbox 필터, Calendar 요약, Project 진행률, Review 7일 요약을 추가했습니다.</p>
+          </article>
+          <article class="release">
+            <strong>v2.1.0</strong>
+            <p class="muted">Today 실행 플로우를 강화했습니다. 프로젝트 연결, 상태 버튼, 블록 시작, Review 이동 액션이 들어갔습니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>다음 로드맵</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>가까운 단계</h3>
+            <ol>
+              <li>v2.2 Calendar 실행력 강화</li>
+              <li>v2.3 Project 운영 페이지 강화</li>
+              <li>v2.4 Review 루프 강화</li>
+              <li>v2.5 전체 카피, 빈 상태, 설정 안정화</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>큰 단계</h3>
+            <ol>
+              <li>v3.x 폐쇄 루프 완성</li>
+              <li>v4.x IndexedDB와 고급 캘린더</li>
+              <li>v5.x 계정과 동기화 기반</li>
+              <li>v6.x 개인 지능화와 인사이트</li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>다음 작업 제안</h2>
+        <div class="pill-row" aria-label="다음 작업 태그">
+          <span class="pill">Calendar Day View</span>
+          <span class="pill">Time Axis</span>
+          <span class="pill">Project Detail</span>
+          <span class="pill">Review Draft</span>
+          <span class="pill">Korean Copy QA</span>
+          <span class="pill">IndexedDB Prep</span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
