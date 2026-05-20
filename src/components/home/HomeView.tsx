@@ -3,8 +3,12 @@
 import { Activity, Check, Clock, NotebookPen, Signal } from "lucide-react";
 import type { AppStore } from "@/store/useAppStore";
 import { toDateKey } from "@/lib/date";
+import { loopStages } from "@/lib/labels";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatCard } from "@/components/ui/StatCard";
 
 export function HomeView({ store }: { store: AppStore }) {
   const data = store.data!;
@@ -15,24 +19,25 @@ export function HomeView({ store }: { store: AppStore }) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-sage">Capture → Plan → Execute → Log → Review → Refine</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink">오늘의 운영 센터</h1>
-        </div>
-        <Button variant="primary" onClick={() => store.navigate("today")}>
-          오늘 실행 열기
-        </Button>
-      </header>
+      <PageHeader
+        eyebrow={loopStages.join(" -> ")}
+        title="오늘의 운영 센터"
+        description="하루를 시작하고, 실행 중인 흐름을 확인하고, 저녁 회고로 닫는 개인 대시보드입니다."
+        action={
+          <Button variant="primary" onClick={() => store.navigate("today")}>
+            오늘 실행 열기
+          </Button>
+        }
+      />
 
       <div className="grid gap-5 xl:grid-cols-[1.3fr_0.7fr]">
         <Card>
           <SectionTitle title="오늘의 포커스" caption="오늘 하루의 기준 문장" />
           <div className="rounded-md border border-line bg-[#f7f5ef] p-4 text-xl font-semibold text-ink">{data.todayFocus}</div>
           <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <Metric icon={<Check size={17} />} label="오늘 작업" value={`${todayTasks.length}개`} />
-            <Metric icon={<Clock size={17} />} label="타임블록" value={`${blocks.length}개`} />
-            <Metric icon={<Signal size={17} />} label="에너지" value={mood ? `${mood.energyScore}/5` : "미기록"} />
+            <StatCard icon={<Check size={17} />} label="오늘 작업" value={`${todayTasks.length}개`} />
+            <StatCard icon={<Clock size={17} />} label="타임블록" value={`${blocks.length}개`} />
+            <StatCard icon={<Signal size={17} />} label="에너지" value={mood ? `${mood.energyScore}/5` : "미기록"} />
           </div>
         </Card>
 
@@ -57,7 +62,7 @@ export function HomeView({ store }: { store: AppStore }) {
         <Card className="lg:col-span-2">
           <SectionTitle title="현재 타임블록" />
           <div className="space-y-3">
-            {blocks.map((block) => (
+            {blocks.length ? blocks.map((block) => (
               <button
                 key={block.id}
                 className="flex w-full items-center justify-between rounded-md border border-line p-3 text-left hover:border-sage"
@@ -71,7 +76,7 @@ export function HomeView({ store }: { store: AppStore }) {
                 </span>
                 <Activity size={17} className="text-sage" />
               </button>
-            ))}
+            )) : <EmptyState title="오늘의 시간 배치가 비어 있습니다" description="Today 또는 Calendar에서 첫 타임블록을 만들면 이곳에 표시됩니다." />}
           </div>
         </Card>
 
@@ -99,7 +104,7 @@ export function HomeView({ store }: { store: AppStore }) {
         <Card>
           <SectionTitle title="데일리 퀘스트" />
           <div className="space-y-2">
-            {todayTasks.slice(0, 6).map((task) => (
+            {todayTasks.length ? todayTasks.slice(0, 6).map((task) => (
               <label key={task.id} className="flex items-center gap-3 rounded-md border border-line p-3">
                 <input
                   type="checkbox"
@@ -108,7 +113,7 @@ export function HomeView({ store }: { store: AppStore }) {
                 />
                 <span className={task.status === "done" ? "text-muted line-through" : "text-ink"}>{task.title}</span>
               </label>
-            ))}
+            )) : <EmptyState title="오늘 체크리스트가 비어 있습니다" description="Inbox에서 옮기거나 Today에서 직접 작업을 추가해 보세요." />}
           </div>
         </Card>
 
@@ -127,18 +132,6 @@ export function HomeView({ store }: { store: AppStore }) {
           </div>
         </Card>
       </div>
-    </div>
-  );
-}
-
-function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-line bg-white p-3">
-      <div className="flex items-center gap-2 text-sm text-muted">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-2 text-xl font-semibold text-ink">{value}</div>
     </div>
   );
 }

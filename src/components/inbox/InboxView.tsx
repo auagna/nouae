@@ -5,7 +5,9 @@ import { useState } from "react";
 import type { AppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export function InboxView({ store }: { store: AppStore }) {
   const data = store.data!;
@@ -21,10 +23,11 @@ export function InboxView({ store }: { store: AppStore }) {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm font-medium text-sage">Capture</p>
-        <h1 className="mt-2 text-3xl font-semibold text-ink">인박스</h1>
-      </header>
+      <PageHeader
+        eyebrow="Capture"
+        title="인박스"
+        description="아직 분류하지 않은 생각, 작업, 링크, 아이디어를 빠르게 붙잡는 입구입니다."
+      />
       <Card>
         <SectionTitle title="빠른 캡처" caption="정리 전 생각, 할 일, 링크, 아이디어를 모읍니다." />
         <div className="grid gap-3 lg:grid-cols-[0.7fr_1fr_auto]">
@@ -35,7 +38,7 @@ export function InboxView({ store }: { store: AppStore }) {
       </Card>
 
       <div className="grid gap-4">
-        {data.inboxItems.map((item) => (
+        {data.inboxItems.length ? data.inboxItems.map((item) => (
           <Card key={item.id} className={item.status === "processed" ? "opacity-70" : ""}>
             <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
               <button className="text-left" onClick={() => store.setInspectorItem({ kind: "inbox", id: item.id })}>
@@ -70,7 +73,7 @@ export function InboxView({ store }: { store: AppStore }) {
               </div>
             </div>
           </Card>
-        ))}
+        )) : <EmptyState title="인박스가 비어 있습니다" description="새 생각이 생기면 위 입력창에 먼저 담아두세요." />}
       </div>
     </div>
   );

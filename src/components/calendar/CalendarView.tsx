@@ -5,14 +5,19 @@ import { useState } from "react";
 import type { AppStore } from "@/store/useAppStore";
 import type { TimeBlockType } from "@/types";
 import { addDays, addMonths, formatMonthTitle, getMonthGrid, getWeekDays, toDateKey } from "@/lib/date";
+import { timeBlockTypeLabels } from "@/lib/labels";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
 export function CalendarView({ store }: { store: AppStore }) {
   const [title, setTitle] = useState("");
+  const [start, setStart] = useState("14:00");
+  const [end, setEnd] = useState("15:00");
   const [type, setType] = useState<TimeBlockType>("timeBlock");
   const selectedKey = toDateKey(store.calendarDate);
 
@@ -24,11 +29,11 @@ export function CalendarView({ store }: { store: AppStore }) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-sage">Plan / Execute</p>
-          <h1 className="mt-2 text-3xl font-semibold text-ink">캘린더</h1>
-        </div>
+      <PageHeader
+        eyebrow="Plan / Execute"
+        title="캘린더"
+        description="작업, 루틴, 프로젝트 마일스톤을 시간 위에 배치하는 개인 일정판입니다."
+        action={
         <div className="flex flex-wrap items-center gap-2">
           {(["month", "week", "day"] as const).map((mode) => (
             <Button key={mode} variant={store.calendarMode === mode ? "primary" : "secondary"} onClick={() => store.setCalendarMode(mode)}>
@@ -39,26 +44,24 @@ export function CalendarView({ store }: { store: AppStore }) {
           <Button className="h-9 w-9 px-0" onClick={() => movePeriod(-1)}><ChevronLeft size={16} /></Button>
           <Button className="h-9 w-9 px-0" onClick={() => movePeriod(1)}><ChevronRight size={16} /></Button>
         </div>
-      </header>
+        }
+      />
 
       <Card>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-ink">{formatMonthTitle(store.calendarDate)}</h2>
           <div className="grid w-full gap-2 md:w-auto md:grid-cols-[180px_90px_90px_120px_auto]">
             <Input placeholder="새 블록" value={title} onChange={(event) => setTitle(event.target.value)} />
-            <Input id="calendarStart" type="time" defaultValue="14:00" />
-            <Input id="calendarEnd" type="time" defaultValue="15:00" />
+            <Input type="time" value={start} onChange={(event) => setStart(event.target.value)} />
+            <Input type="time" value={end} onChange={(event) => setEnd(event.target.value)} />
             <select className="h-10 rounded-md border border-line px-2 text-sm" value={type} onChange={(event) => setType(event.target.value as TimeBlockType)}>
-              <option value="timeBlock">블록</option>
-              <option value="task">작업</option>
-              <option value="projectMilestone">마일스톤</option>
-              <option value="routine">루틴</option>
+              {(Object.keys(timeBlockTypeLabels) as TimeBlockType[]).map((key) => (
+                <option key={key} value={key}>{timeBlockTypeLabels[key]}</option>
+              ))}
             </select>
             <Button
               variant="primary"
               onClick={() => {
-                const start = (document.getElementById("calendarStart") as HTMLInputElement | null)?.value ?? "14:00";
-                const end = (document.getElementById("calendarEnd") as HTMLInputElement | null)?.value ?? "15:00";
                 if (!title.trim()) return;
                 store.addTimeBlock({ title: title.trim(), start, end, date: selectedKey, type });
                 setTitle("");
@@ -157,7 +160,7 @@ function DayGrid({ store }: { store: AppStore }) {
 
   return (
     <div className="grid gap-3">
-      {[...blocks, ...tasks].map((item) => (
+      {[...blocks, ...tasks].length ? [...blocks, ...tasks].map((item) => (
         <button
           key={item.id}
           className="grid gap-3 rounded-md border border-line bg-white p-4 text-left hover:border-sage md:grid-cols-[120px_1fr]"
@@ -169,7 +172,7 @@ function DayGrid({ store }: { store: AppStore }) {
             <div className="mt-1 text-sm text-muted">{"note" in item ? item.note : ""}</div>
           </div>
         </button>
-      ))}
+      )) : <EmptyState title="선택한 날짜에 일정이 없습니다" description="상단 입력창에서 작업이나 타임블록을 새로 만들 수 있습니다." />}
     </div>
   );
 }

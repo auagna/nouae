@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import type { AppStore } from "@/store/useAppStore";
+import { projectStatusLabels, taskStatusLabels } from "@/lib/labels";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Field";
 
@@ -36,9 +37,9 @@ export function RightInspector({ store }: { store: AppStore }) {
             value={task.status}
             onChange={(event) => store.updateTask(task.id, { status: event.target.value as typeof task.status })}
           >
-            <option value="todo">예정</option>
-            <option value="doing">진행</option>
-            <option value="done">완료</option>
+            {Object.entries(taskStatusLabels).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
           </select>
           <Button variant="danger" onClick={() => store.deleteTask(task.id)}>
             삭제
@@ -72,9 +73,9 @@ export function RightInspector({ store }: { store: AppStore }) {
             value={project.status}
             onChange={(event) => store.updateProject(project.id, { status: event.target.value as typeof project.status })}
           >
-            <option value="active">진행</option>
-            <option value="paused">보류</option>
-            <option value="completed">완료</option>
+            {Object.entries(projectStatusLabels).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
           </select>
           <Button variant="danger" onClick={() => store.deleteProject(project.id)}>
             프로젝트 삭제

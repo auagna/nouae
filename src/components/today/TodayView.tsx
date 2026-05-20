@@ -6,7 +6,9 @@ import type { AppStore } from "@/store/useAppStore";
 import { formatKoreanDate, toDateKey } from "@/lib/date";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Input, Textarea } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export function TodayView({ store }: { store: AppStore }) {
   const data = store.data!;
@@ -15,19 +17,18 @@ export function TodayView({ store }: { store: AppStore }) {
   const blocks = data.timeBlocks.filter((block) => block.date === today).sort((a, b) => a.start.localeCompare(b.start));
   const [taskTitle, setTaskTitle] = useState("");
   const [blockTitle, setBlockTitle] = useState("");
+  const [blockStart, setBlockStart] = useState("09:00");
+  const [blockEnd, setBlockEnd] = useState("10:00");
   const done = tasks.filter((task) => task.status === "done").length;
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-sage">{formatKoreanDate(today)}</p>
-          <h1 className="mt-2 text-3xl font-semibold text-ink">오늘 실행</h1>
-        </div>
-        <div className="rounded-md border border-line bg-panel px-4 py-3 text-sm text-muted">
-          완료 {done} / {tasks.length}
-        </div>
-      </header>
+      <PageHeader
+        eyebrow={formatKoreanDate(today)}
+        title="오늘 실행"
+        description="오늘의 포커스를 작업과 시간으로 나누고, 실행 후 빠르게 로그를 남깁니다."
+        action={<div className="rounded-md border border-line bg-panel px-4 py-3 text-sm text-muted">완료 {done} / {tasks.length}</div>}
+      />
 
       <Card>
         <SectionTitle title="오늘 포커스 문장" />
@@ -51,7 +52,7 @@ export function TodayView({ store }: { store: AppStore }) {
             </Button>
           </div>
           <div className="space-y-2">
-            {tasks.map((task) => (
+            {tasks.length ? tasks.map((task) => (
               <div key={task.id} className="flex items-center gap-3 rounded-md border border-line p-3">
                 <input
                   type="checkbox"
@@ -65,7 +66,7 @@ export function TodayView({ store }: { store: AppStore }) {
                   <Trash2 size={15} />
                 </Button>
               </div>
-            ))}
+            )) : <EmptyState title="오늘 할 일이 없습니다" description="작은 작업 하나를 추가해서 실행 루프를 시작하세요." />}
           </div>
         </Card>
 
@@ -73,15 +74,13 @@ export function TodayView({ store }: { store: AppStore }) {
           <SectionTitle title="타임블록" caption="시간을 먼저 배치하고 실행을 닫습니다." />
           <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_88px_88px_auto]">
             <Input placeholder="블록 제목" value={blockTitle} onChange={(event) => setBlockTitle(event.target.value)} />
-            <Input id="startTime" type="time" defaultValue="09:00" />
-            <Input id="endTime" type="time" defaultValue="10:00" />
+            <Input type="time" value={blockStart} onChange={(event) => setBlockStart(event.target.value)} />
+            <Input type="time" value={blockEnd} onChange={(event) => setBlockEnd(event.target.value)} />
             <Button
               variant="primary"
               onClick={() => {
-                const start = (document.getElementById("startTime") as HTMLInputElement | null)?.value ?? "09:00";
-                const end = (document.getElementById("endTime") as HTMLInputElement | null)?.value ?? "10:00";
                 if (!blockTitle.trim()) return;
-                store.addTimeBlock({ title: blockTitle.trim(), start, end, date: today });
+                store.addTimeBlock({ title: blockTitle.trim(), start: blockStart, end: blockEnd, date: today });
                 setBlockTitle("");
               }}
             >
@@ -89,7 +88,7 @@ export function TodayView({ store }: { store: AppStore }) {
             </Button>
           </div>
           <div className="space-y-2">
-            {blocks.map((block) => (
+            {blocks.length ? blocks.map((block) => (
               <button
                 key={block.id}
                 className="grid w-full grid-cols-[88px_1fr_auto] items-center gap-3 rounded-md border border-line p-3 text-left hover:border-sage"
@@ -99,7 +98,7 @@ export function TodayView({ store }: { store: AppStore }) {
                 <span className="font-medium text-ink">{block.title}</span>
                 <span className="text-sm text-muted">{block.end}</span>
               </button>
-            ))}
+            )) : <EmptyState title="오늘의 타임블록이 없습니다" description="실행할 시간을 먼저 확보하면 체크리스트가 더 잘 닫힙니다." />}
           </div>
         </Card>
       </div>

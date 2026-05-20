@@ -3,16 +3,17 @@
 import { CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Home, Inbox, PanelsTopLeft, RotateCcw, Settings, Target } from "lucide-react";
 import type { AppStore } from "@/store/useAppStore";
 import type { ViewKey } from "@/types";
+import { viewLabels } from "@/lib/labels";
 import { Button } from "@/components/ui/Button";
 
 const navItems: Array<{ key: ViewKey; label: string; icon: React.ComponentType<{ size?: number }> }> = [
-  { key: "home", label: "홈", icon: Home },
-  { key: "inbox", label: "인박스", icon: Inbox },
-  { key: "today", label: "오늘", icon: Target },
-  { key: "calendar", label: "캘린더", icon: CalendarDays },
-  { key: "projects", label: "프로젝트", icon: PanelsTopLeft },
-  { key: "review", label: "리뷰", icon: RotateCcw },
-  { key: "settings", label: "설정", icon: Settings }
+  { key: "home", label: viewLabels.home, icon: Home },
+  { key: "inbox", label: viewLabels.inbox, icon: Inbox },
+  { key: "today", label: viewLabels.today, icon: Target },
+  { key: "calendar", label: viewLabels.calendar, icon: CalendarDays },
+  { key: "projects", label: viewLabels.projects, icon: PanelsTopLeft },
+  { key: "review", label: viewLabels.review, icon: RotateCcw },
+  { key: "settings", label: viewLabels.settings, icon: Settings }
 ];
 
 export function Sidebar({ store }: { store: AppStore }) {

@@ -6,7 +6,9 @@ import type { AppStore } from "@/store/useAppStore";
 import { toDateKey } from "@/lib/date";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Textarea } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export function ReviewView({ store }: { store: AppStore }) {
   const data = store.data!;
@@ -33,10 +35,11 @@ export function ReviewView({ store }: { store: AppStore }) {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm font-medium text-sage">Review / Refine</p>
-        <h1 className="mt-2 text-3xl font-semibold text-ink">리뷰</h1>
-      </header>
+      <PageHeader
+        eyebrow="Review / Refine"
+        title="리뷰"
+        description="완료와 미완료를 구분하고, 내일의 계획을 조금 더 현실적으로 조정합니다."
+      />
 
       <div className="grid gap-5 lg:grid-cols-3">
         <Card>
@@ -87,12 +90,12 @@ export function ReviewView({ store }: { store: AppStore }) {
       <Card>
         <SectionTitle title="저장된 리뷰" />
         <div className="space-y-3">
-          {data.reviews.map((review) => (
+          {data.reviews.length ? data.reviews.map((review) => (
             <div key={review.id} className="rounded-md border border-line p-4">
               <div className="font-semibold text-ink">{review.date}</div>
               <p className="mt-2 whitespace-pre-wrap text-sm text-muted">{review.reflection || "회고 메모 없음"}</p>
             </div>
-          ))}
+          )) : <EmptyState title="저장된 리뷰가 없습니다" description="오늘 회고를 저장하면 이곳에 쌓입니다." />}
         </div>
       </Card>
     </div>

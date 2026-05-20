@@ -6,6 +6,7 @@ import type { AppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { Textarea } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export function SettingsView({ store }: { store: AppStore }) {
   const [importValue, setImportValue] = useState("");
@@ -34,10 +35,11 @@ export function SettingsView({ store }: { store: AppStore }) {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm font-medium text-sage">Preferences</p>
-        <h1 className="mt-2 text-3xl font-semibold text-ink">설정</h1>
-      </header>
+      <PageHeader
+        eyebrow="Preferences"
+        title="설정"
+        description="로컬 데이터와 앱 환경을 관리합니다. 현재 MVP 데이터는 이 브라우저 안에만 저장됩니다."
+      />
 
       <Card>
         <SectionTitle title="앱 환경" />

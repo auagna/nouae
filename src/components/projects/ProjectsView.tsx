@@ -4,9 +4,12 @@ import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { AppStore } from "@/store/useAppStore";
 import { toDateKey } from "@/lib/date";
+import { projectStatusLabels } from "@/lib/labels";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Input, Textarea } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export function ProjectsView({ store }: { store: AppStore }) {
   const data = store.data!;
@@ -16,13 +19,15 @@ export function ProjectsView({ store }: { store: AppStore }) {
   const selected = data.projects.find((project) => project.id === selectedId) ?? data.projects[0];
   const [taskTitle, setTaskTitle] = useState("");
   const [memoTitle, setMemoTitle] = useState("");
+  const [memoContent, setMemoContent] = useState("");
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm font-medium text-sage">Plan / Refine</p>
-        <h1 className="mt-2 text-3xl font-semibold text-ink">프로젝트</h1>
-      </header>
+      <PageHeader
+        eyebrow="Plan / Refine"
+        title="프로젝트"
+        description="개인 목표를 진행 상태, 체크리스트, 메모 위젯으로 관리합니다."
+      />
 
       <Card>
         <SectionTitle title="프로젝트 생성" />
@@ -59,7 +64,7 @@ export function ProjectsView({ store }: { store: AppStore }) {
             >
               <div className="flex items-center justify-between gap-3">
                 <h2 className="font-semibold text-ink">{project.title}</h2>
-                <span className="rounded border border-line px-2 py-1 text-xs text-muted">{statusLabel(project.status)}</span>
+                <span className="rounded border border-line px-2 py-1 text-xs text-muted">{projectStatusLabels[project.status]}</span>
               </div>
               <p className="mt-2 line-clamp-2 text-sm text-muted">{project.description}</p>
             </button>
@@ -94,7 +99,7 @@ export function ProjectsView({ store }: { store: AppStore }) {
                   </Button>
                 </div>
                 <div className="space-y-2">
-                  {data.tasks.filter((task) => task.projectId === selected.id).map((task) => (
+                  {data.tasks.filter((task) => task.projectId === selected.id).length ? data.tasks.filter((task) => task.projectId === selected.id).map((task) => (
                     <label key={task.id} className="flex items-center gap-3 rounded-md border border-line p-3">
                       <input
                         type="checkbox"
@@ -103,7 +108,7 @@ export function ProjectsView({ store }: { store: AppStore }) {
                       />
                       <span className={task.status === "done" ? "text-muted line-through" : "text-ink"}>{task.title}</span>
                     </label>
-                  ))}
+                  )) : <EmptyState title="프로젝트 작업이 없습니다" description="이 프로젝트를 앞으로 움직일 가장 작은 다음 행동을 추가하세요." />}
                 </div>
               </section>
 
@@ -111,22 +116,20 @@ export function ProjectsView({ store }: { store: AppStore }) {
                 <SectionTitle title="메모 위젯" />
                 <div className="mb-3 space-y-2">
                   <Input placeholder="메모 제목" value={memoTitle} onChange={(event) => setMemoTitle(event.target.value)} />
-                  <Textarea id="projectMemoContent" placeholder="내용" />
+                  <Textarea placeholder="내용" value={memoContent} onChange={(event) => setMemoContent(event.target.value)} />
                   <Button
                     onClick={() => {
-                      const content = (document.getElementById("projectMemoContent") as HTMLTextAreaElement | null)?.value ?? "";
                       if (!memoTitle.trim()) return;
-                      store.addProjectWidget(selected.id, memoTitle.trim(), content);
+                      store.addProjectWidget(selected.id, memoTitle.trim(), memoContent);
                       setMemoTitle("");
-                      const field = document.getElementById("projectMemoContent") as HTMLTextAreaElement | null;
-                      if (field) field.value = "";
+                      setMemoContent("");
                     }}
                   >
                     메모 추가
                   </Button>
                 </div>
                 <div className="space-y-2">
-                  {selected.widgets.map((widget) => (
+                  {selected.widgets.length ? selected.widgets.map((widget) => (
                     <div key={widget.id} className="rounded-md border border-line p-3">
                       <div className="font-medium text-ink">{widget.title}</div>
                       <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{widget.content}</p>
@@ -134,7 +137,7 @@ export function ProjectsView({ store }: { store: AppStore }) {
                         <div key={item.id} className="mt-2 text-sm text-muted">{item.done ? "완료" : "예정"} · {item.title}</div>
                       ))}
                     </div>
-                  ))}
+                  )) : <EmptyState title="메모 위젯이 없습니다" description="프로젝트 기준, 아이디어, 체크 포인트를 작은 메모로 남기세요." />}
                 </div>
               </section>
             </div>
@@ -143,10 +146,4 @@ export function ProjectsView({ store }: { store: AppStore }) {
       </div>
     </div>
   );
-}
-
-function statusLabel(status: string) {
-  if (status === "active") return "진행";
-  if (status === "paused") return "보류";
-  return "완료";
 }
